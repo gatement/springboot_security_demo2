@@ -15,7 +15,7 @@ public class JwtUser implements UserDetails {
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		List<String> roles = Arrays.asList("USER", "ADMIN");
+		List<String> roles = Arrays.asList("ROLE_USER", "ROLE_ADMIN");
 		return roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
 	}
 
