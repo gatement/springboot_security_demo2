@@ -1,4 +1,6 @@
-package lgh.springboot.sec2;
+package lgh.springboot.sec2.service;
+
+import lgh.springboot.sec2.dto.User;
 
 public interface AuthService {
 

@@ -1,6 +1,4 @@
-package lgh.springboot.sec2;
-
-import java.util.Arrays;
+package lgh.springboot.sec2.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +10,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import lgh.springboot.sec2.JwtTokenUtil;
+import lgh.springboot.sec2.dto.User;
+import lgh.springboot.sec2.service.AuthService;
 
 @Service
 public class AuthServiceImpl implements AuthService{
@@ -42,18 +44,19 @@ public class AuthServiceImpl implements AuthService{
         final String rawPassword = userToAdd.getPassword();
         userToAdd.setPassword(encoder.encode(rawPassword));
 
-        // set roles
-        userToAdd.setRoles(Arrays.asList("ROLE_USER"));
+        // save to database
 
 		return userToAdd;
 	}
 
 	@Override
 	public String login(String username, String password) {
-		UsernamePasswordAuthenticationToken upToken = new UsernamePasswordAuthenticationToken(username, password);
-        final Authentication authentication = authenticationManager.authenticate(upToken);
+		// set authentication
+		UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password);
+        final Authentication authentication = authenticationManager.authenticate(authToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
+        // generate token
         final UserDetails userDetails = userDetailsService.loadUserByUsername(username);
         final String token = jwtTokenUtil.generateToken(userDetails);
         return token;
@@ -62,8 +65,6 @@ public class AuthServiceImpl implements AuthService{
 	@Override
 	public String refresh(String oldToken) {
 		final String token = oldToken.substring(tokenHead.length());
-        //String username = jwtTokenUtil.getUsernameFromToken(token);
-        //JwtUser user = (JwtUser) userDetailsService.loadUserByUsername(username);
         if (jwtTokenUtil.canTokenBeRefreshed(token)){
             return jwtTokenUtil.refreshToken(token);
         }

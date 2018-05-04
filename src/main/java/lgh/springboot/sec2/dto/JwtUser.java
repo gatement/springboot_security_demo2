@@ -1,4 +1,4 @@
-package lgh.springboot.sec2;
+package lgh.springboot.sec2.dto;
 
 import java.util.Arrays;
 import java.util.Collection;
