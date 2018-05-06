@@ -14,39 +14,35 @@ import org.springframework.stereotype.Service;
 import lgh.springboot.sec2.JwtTokenUtil;
 import lgh.springboot.sec2.dto.User;
 import lgh.springboot.sec2.service.AuthService;
-import lombok.extern.slf4j.Slf4j;
 
 @Service
-@Slf4j
-public class AuthServiceImpl implements AuthService{
+public class AuthServiceImpl implements AuthService {
 
-    private AuthenticationManager authenticationManager;
-    private UserDetailsService userDetailsService;
-    private JwtTokenUtil jwtTokenUtil;
+	private AuthenticationManager authenticationManager;
+	private UserDetailsService userDetailsService;
+	private JwtTokenUtil jwtTokenUtil;
 
 	@Value("${app.security.jwt.tokenHead}")
 	private String tokenHead;
 
 	@Autowired
-    public AuthServiceImpl(
-            AuthenticationManager authenticationManager,
-            UserDetailsService userDetailsService,
-            JwtTokenUtil jwtTokenUtil) {
-        this.authenticationManager = authenticationManager;
-        this.userDetailsService = userDetailsService;
-        this.jwtTokenUtil = jwtTokenUtil;
-    }
-	
+	public AuthServiceImpl(AuthenticationManager authenticationManager, UserDetailsService userDetailsService,
+			JwtTokenUtil jwtTokenUtil) {
+		this.authenticationManager = authenticationManager;
+		this.userDetailsService = userDetailsService;
+		this.jwtTokenUtil = jwtTokenUtil;
+	}
+
 	@Override
 	public User register(User userToAdd) {
 		// make sure the use does't exist
 
 		// encrypt password
-        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
-        final String rawPassword = userToAdd.getPassword();
-        userToAdd.setPassword(encoder.encode(rawPassword));
+		BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+		final String rawPassword = userToAdd.getPassword();
+		userToAdd.setPassword(encoder.encode(rawPassword));
 
-        // save to database
+		// save to database
 
 		return userToAdd;
 	}
@@ -54,26 +50,23 @@ public class AuthServiceImpl implements AuthService{
 	@Override
 	public String login(String username, String password) {
 		// set authentication
-		log.info("user: {}, pwd: {}", username, password);
 		UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password);
-		log.info("start to auth, user: {}, pwd: {}", username, password);
-        final Authentication authentication = authenticationManager.authenticate(authToken);
-		log.info("end auth, user: {}, pwd: {}", username, password);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
+		final Authentication authentication = authenticationManager.authenticate(authToken);
+		SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        // generate token
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-        final String token = jwtTokenUtil.generateToken(userDetails);
-        return token;
+		// generate token
+		final UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+		final String token = jwtTokenUtil.generateToken(userDetails);
+		return token;
 	}
 
 	@Override
 	public String refresh(String oldToken) {
 		final String token = oldToken.substring(tokenHead.length());
-        if (jwtTokenUtil.canTokenBeRefreshed(token)){
-            return jwtTokenUtil.refreshToken(token);
-        }
-        return null;
+		if (jwtTokenUtil.canTokenBeRefreshed(token)) {
+			return jwtTokenUtil.refreshToken(token);
+		}
+		return null;
 	}
 
 }
