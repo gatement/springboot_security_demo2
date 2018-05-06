@@ -21,12 +21,13 @@ public class JwtUser implements UserDetails {
 
 	@Override
 	public String getPassword() {
-		return "123456";
+		// password is "123456"
+		return "$2a$10$iVES8E4PWvubCZR6lDT5ouXvjEUi9oD6BXiak2REINCdqZp2RM4ny";
 	}
 
 	@Override
 	public String getUsername() {
-		return "JohnsonLau";
+		return "johnson";
 	}
 
 	@Override

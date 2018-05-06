@@ -14,8 +14,10 @@ import org.springframework.stereotype.Service;
 import lgh.springboot.sec2.JwtTokenUtil;
 import lgh.springboot.sec2.dto.User;
 import lgh.springboot.sec2.service.AuthService;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
+@Slf4j
 public class AuthServiceImpl implements AuthService{
 
     private AuthenticationManager authenticationManager;
@@ -52,8 +54,11 @@ public class AuthServiceImpl implements AuthService{
 	@Override
 	public String login(String username, String password) {
 		// set authentication
+		log.info("user: {}, pwd: {}", username, password);
 		UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password);
+		log.info("start to auth, user: {}, pwd: {}", username, password);
         final Authentication authentication = authenticationManager.authenticate(authToken);
+		log.info("end auth, user: {}, pwd: {}", username, password);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // generate token

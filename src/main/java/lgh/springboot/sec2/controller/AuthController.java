@@ -1,6 +1,7 @@
 package lgh.springboot.sec2.controller;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,26 +24,31 @@ public class AuthController {
 	@Value("${app.security.jwt.header}")
 	private String header;
 
+	@Value("${app.security.jwt.tokenHead}")
+	private String tokenHead;
+
 	@Autowired
 	private AuthService authService;
 
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
-	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest)
-			throws AuthenticationException {
+	public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtAuthenticationRequest authenticationRequest,
+			HttpServletResponse response) throws AuthenticationException {
 		final String token = authService.login(authenticationRequest.getUsername(),
 				authenticationRequest.getPassword());
+		response.setHeader(header, tokenHead + token);
 
 		return ResponseEntity.ok(new JwtAuthenticationResponse(token));
 	}
 
 	@RequestMapping(value = "/refresh", method = RequestMethod.GET)
-	public ResponseEntity<?> refreshAndGetAuthenticationToken(HttpServletRequest request)
+	public ResponseEntity<?> refreshAndGetAuthenticationToken(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException {
 		String token = request.getHeader(header);
 		String refreshedToken = authService.refresh(token);
 		if (refreshedToken == null) {
 			return ResponseEntity.badRequest().body(null);
 		} else {
+			response.setHeader(header, tokenHead + refreshedToken);
 			return ResponseEntity.ok(new JwtAuthenticationResponse(refreshedToken));
 		}
 	}
